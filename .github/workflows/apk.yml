@@ -50,6 +50,11 @@ jobs:
           cat > app/src/main/AndroidManifest.xml <<'EOF_4'
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <queries>
+                  <intent>
+                      <action android:name="android.intent.action.TTS_SERVICE"/>
+                  </intent>
+              </queries>
               <application
                   android:label="Harfler"
                   android:icon="@drawable/ic_launcher"
@@ -73,25 +78,76 @@ jobs:
 
           import android.app.Activity;
           import android.os.Bundle;
+          import android.speech.tts.TextToSpeech;
           import android.view.View;
           import android.view.WindowManager;
+          import android.webkit.JavascriptInterface;
           import android.webkit.WebSettings;
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
+          import android.widget.Toast;
+          import java.util.ArrayList;
+          import java.util.Locale;
 
           public class MainActivity extends Activity {
               private WebView web;
+              private TextToSpeech tts;
+              private boolean ttsReady = false;
+              private final ArrayList<Object[]> pending = new ArrayList<Object[]>();
+
+              public class Bridge {
+                  @JavascriptInterface
+                  public void speak(String text, double rate, double pitch) {
+                      synchronized (MainActivity.this) {
+                          if (!ttsReady) { pending.add(new Object[]{text, rate, pitch}); return; }
+                      }
+                      doSpeak(text, rate, pitch);
+                  }
+                  @JavascriptInterface
+                  public void stop() {
+                      synchronized (MainActivity.this) { pending.clear(); }
+                      if (tts != null) tts.stop();
+                  }
+              }
+
+              private void doSpeak(String text, double rate, double pitch) {
+                  if (tts == null) return;
+                  tts.setSpeechRate((float) rate);
+                  tts.setPitch((float) pitch);
+                  tts.speak(text, TextToSpeech.QUEUE_ADD, null, "u" + System.nanoTime());
+              }
 
               @Override
               protected void onCreate(Bundle b) {
                   super.onCreate(b);
                   getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                  tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+                      @Override
+                      public void onInit(int status) {
+                          if (status != TextToSpeech.SUCCESS) {
+                              Toast.makeText(MainActivity.this, "Telefonda metin okuma motoru bulunamadi.", Toast.LENGTH_LONG).show();
+                              return;
+                          }
+                          int r = tts.setLanguage(new Locale("tr", "TR"));
+                          if (r == TextToSpeech.LANG_MISSING_DATA || r == TextToSpeech.LANG_NOT_SUPPORTED) {
+                              Toast.makeText(MainActivity.this, "Telefonda Turkce ses yok. Ayarlar > Metin okuma bolumunden Turkce ses indirin.", Toast.LENGTH_LONG).show();
+                          }
+                          ArrayList<Object[]> copy;
+                          synchronized (MainActivity.this) {
+                              ttsReady = true;
+                              copy = new ArrayList<Object[]>(pending);
+                              pending.clear();
+                          }
+                          for (Object[] p : copy) doSpeak((String) p[0], (Double) p[1], (Double) p[2]);
+                      }
+                  });
                   web = new WebView(this);
                   setContentView(web);
                   WebSettings s = web.getSettings();
                   s.setJavaScriptEnabled(true);
                   s.setDomStorageEnabled(true);
                   s.setMediaPlaybackRequiresUserGesture(false);
+                  web.addJavascriptInterface(new Bridge(), "AndroidTTS");
                   web.setWebViewClient(new WebViewClient());
                   if (b != null) web.restoreState(b); else web.loadUrl("file:///android_asset/index.html");
               }
@@ -109,9 +165,14 @@ jobs:
               }
 
               @Override
-              protected void onPause() { super.onPause(); web.onPause(); }
+              protected void onPause() { super.onPause(); web.onPause(); if (tts != null) tts.stop(); }
               @Override
               protected void onResume() { super.onResume(); web.onResume(); }
+              @Override
+              protected void onDestroy() {
+                  if (tts != null) { tts.stop(); tts.shutdown(); }
+                  super.onDestroy();
+              }
           }
           EOF_5
           cat > app/src/main/res/drawable/ic_launcher.xml <<'EOF_6'
