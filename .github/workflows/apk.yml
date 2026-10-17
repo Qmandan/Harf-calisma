@@ -1,0 +1,131 @@
+name: APK derle
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.5
+      - name: Proje dosyalarini olustur
+        run: |
+          mkdir -p app/src/main/assets app/src/main/res/drawable app/src/main/java/com/hece/bardagi
+          cp index.html app/src/main/assets/index.html
+          cat > settings.gradle <<'EOF_0'
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositories { google(); mavenCentral() } }
+          rootProject.name = "HeceBardagi"
+          include ':app'
+          EOF_0
+          cat > build.gradle <<'EOF_1'
+          plugins { id 'com.android.application' version '8.2.2' apply false }
+          EOF_1
+          cat > gradle.properties <<'EOF_2'
+          org.gradle.jvmargs=-Xmx2g
+          android.useAndroidX=false
+          EOF_2
+          cat > app/build.gradle <<'EOF_3'
+          plugins { id 'com.android.application' }
+          android {
+              namespace 'com.hece.bardagi'
+              compileSdk 34
+              defaultConfig {
+                  applicationId "com.hece.bardagi"
+                  minSdk 24
+                  targetSdk 34
+                  versionCode 1
+                  versionName "1.0"
+              }
+              buildTypes { release { minifyEnabled false } }
+              compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+          }
+          EOF_3
+          cat > app/src/main/AndroidManifest.xml <<'EOF_4'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <application
+                  android:label="Harfler"
+                  android:icon="@drawable/ic_launcher"
+                  android:allowBackup="true"
+                  android:theme="@android:style/Theme.Material.Light.NoActionBar">
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true"
+                      android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+                      android:windowSoftInputMode="adjustResize">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF_4
+          cat > app/src/main/java/com/hece/bardagi/MainActivity.java <<'EOF_5'
+          package com.hece.bardagi;
+
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.view.View;
+          import android.view.WindowManager;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+
+          public class MainActivity extends Activity {
+              private WebView web;
+
+              @Override
+              protected void onCreate(Bundle b) {
+                  super.onCreate(b);
+                  getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                  web = new WebView(this);
+                  setContentView(web);
+                  WebSettings s = web.getSettings();
+                  s.setJavaScriptEnabled(true);
+                  s.setDomStorageEnabled(true);
+                  s.setMediaPlaybackRequiresUserGesture(false);
+                  web.setWebViewClient(new WebViewClient());
+                  if (b != null) web.restoreState(b); else web.loadUrl("file:///android_asset/index.html");
+              }
+
+              @Override
+              protected void onSaveInstanceState(Bundle o) { super.onSaveInstanceState(o); web.saveState(o); }
+
+              @Override
+              public void onWindowFocusChanged(boolean f) {
+                  super.onWindowFocusChanged(f);
+                  if (f) getWindow().getDecorView().setSystemUiVisibility(
+                      View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN
+                      | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                      | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+              }
+
+              @Override
+              protected void onPause() { super.onPause(); web.onPause(); }
+              @Override
+              protected void onResume() { super.onResume(); web.onResume(); }
+          }
+          EOF_5
+          cat > app/src/main/res/drawable/ic_launcher.xml <<'EOF_6'
+          <?xml version="1.0" encoding="utf-8"?>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+              <path android:fillColor="#FF8A3D" android:pathData="M0,0h108v108h-108z"/>
+              <path android:fillColor="#FFFFFF" android:pathData="M30,32h48l-6,48q-18,6 -36,0z"/>
+              <path android:fillColor="#E11D48" android:pathData="M42,44h8v22h-8z"/>
+              <path android:fillColor="#1E3A8A" android:pathData="M58,44h8v22h-8z"/>
+          </vector>
+          EOF_6
+      - name: APK derle
+        run: gradle assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HeceBardagi-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
