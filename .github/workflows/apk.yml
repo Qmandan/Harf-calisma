@@ -79,6 +79,7 @@ jobs:
           import android.app.Activity;
           import android.os.Bundle;
           import android.speech.tts.TextToSpeech;
+          import android.speech.tts.Voice;
           import android.view.View;
           import android.view.WindowManager;
           import android.webkit.JavascriptInterface;
@@ -87,7 +88,11 @@ jobs:
           import android.webkit.WebViewClient;
           import android.widget.Toast;
           import java.util.ArrayList;
+          import java.util.Collections;
           import java.util.Locale;
+          import java.util.Set;
+          import org.json.JSONArray;
+          import org.json.JSONObject;
 
           public class MainActivity extends Activity {
               private WebView web;
@@ -97,11 +102,29 @@ jobs:
 
               public class Bridge {
                   @JavascriptInterface
-                  public void speak(String text, double rate, double pitch) {
+                  public void speak(String text, double rate, double pitch, String voiceName) {
                       synchronized (MainActivity.this) {
-                          if (!ttsReady) { pending.add(new Object[]{text, rate, pitch}); return; }
+                          if (!ttsReady) { pending.add(new Object[]{text, rate, pitch, voiceName}); return; }
                       }
-                      doSpeak(text, rate, pitch);
+                      doSpeak(text, rate, pitch, voiceName);
+                  }
+                  @JavascriptInterface
+                  public String getVoices() {
+                      JSONArray arr = new JSONArray();
+                      try {
+                          if (tts == null || !ttsReady) return "[]";
+                          Set<Voice> vs = tts.getVoices();
+                          ArrayList<String> names = new ArrayList<String>();
+                          if (vs != null) {
+                              for (Voice v : vs) {
+                                  if (v.getLocale() != null && "tr".equalsIgnoreCase(v.getLocale().getLanguage())
+                                      && !v.getFeatures().contains("notInstalled")) names.add(v.getName());
+                              }
+                          }
+                          Collections.sort(names);
+                          for (String n : names) { JSONObject o = new JSONObject(); o.put("name", n); arr.put(o); }
+                      } catch (Exception e) { return "[]"; }
+                      return arr.toString();
                   }
                   @JavascriptInterface
                   public void stop() {
@@ -110,8 +133,19 @@ jobs:
                   }
               }
 
-              private void doSpeak(String text, double rate, double pitch) {
+              private Voice findVoice(String name) {
+                  if (tts == null || name == null || name.length() == 0) return null;
+                  try {
+                      Set<Voice> vs = tts.getVoices();
+                      if (vs != null) for (Voice v : vs) if (name.equals(v.getName())) return v;
+                  } catch (Exception e) { }
+                  return null;
+              }
+
+              private void doSpeak(String text, double rate, double pitch, String voiceName) {
                   if (tts == null) return;
+                  Voice v = findVoice(voiceName);
+                  if (v != null) tts.setVoice(v); else tts.setLanguage(new Locale("tr", "TR"));
                   tts.setSpeechRate((float) rate);
                   tts.setPitch((float) pitch);
                   tts.speak(text, TextToSpeech.QUEUE_ADD, null, "u" + System.nanoTime());
@@ -138,7 +172,8 @@ jobs:
                               copy = new ArrayList<Object[]>(pending);
                               pending.clear();
                           }
-                          for (Object[] p : copy) doSpeak((String) p[0], (Double) p[1], (Double) p[2]);
+                          for (Object[] p : copy) doSpeak((String) p[0], (Double) p[1], (Double) p[2], (String) p[3]);
+                          if (web != null) web.evaluateJavascript("if(window.__ttsReady)window.__ttsReady()", null);
                       }
                   });
                   web = new WebView(this);
