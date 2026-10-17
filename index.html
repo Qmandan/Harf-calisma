@@ -509,6 +509,78 @@ html.tahta .alan{grid-template-columns:minmax(11rem,.8fr) minmax(0,1.9fr) minmax
 .hkpanel{flex:0 0 auto;max-height:45%;overflow:auto;display:grid;gap:.5rem}
 .hktables{flex:1 1 0;min-height:0;display:flex;gap:10px;justify-content:center;align-items:center;overflow:hidden}
 .hktables canvas{display:block;flex:0 0 auto;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;border-radius:16px}
+/* ---- Yeni düzen: ince üst çubuk, alt sekme çubuğu, tam ekran hokey ---- */
+:root{--nav:68px}
+body{padding-top:8px;padding-bottom:calc(var(--nav) + 14px + env(safe-area-inset-bottom,0px))}
+header{flex-wrap:nowrap;padding:.3rem .6rem;border-radius:16px;gap:.5rem}
+header .ders,header .rozetler{display:none}
+header h1{font-size:1.45rem}
+.hsag{gap:.3rem;flex-wrap:nowrap}
+.oyunsec{position:fixed;left:0;right:0;bottom:0;z-index:60;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;max-width:none;justify-self:stretch;background:#fff;border:0;border-top:3px solid var(--line);border-radius:18px 18px 0 0;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 14px rgba(60,40,10,.12)}
+.oyunsec button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:.3rem 0;border-radius:14px;font-size:.8rem;line-height:1.1;min-height:calc(var(--nav) - 14px)}
+.oyunsec button .e{font-size:1.55rem;line-height:1}
+.oyunsec button[aria-pressed="true"]{background:var(--soft);color:var(--koyu);box-shadow:inset 0 0 0 3px var(--mr,var(--line))}
+html[data-game="hokey"] header{display:none}
+.hkalan{height:calc(100vh - var(--nav) - 34px);height:calc(100dvh - var(--nav) - 34px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+.hklv{display:grid;grid-template-columns:repeat(3,1fr);width:100%}
+.hklv button{white-space:nowrap;padding:.3rem .2rem;text-align:center}
+@media (max-width:600px){.secimler{gap:.4rem}.secimler>*{flex:0 0 calc((100% - 6 * .4rem) / 7)!important;min-width:0!important;max-width:none!important;padding-inline:0!important}}
+/* ---- Çocuk dostu renkli 3D tema: beyaz zemin, renkli ve kabarık parçalar ---- */
+html,body{background:#fff!important}
+body{color:#2b2350}
+header{background:linear-gradient(135deg,#8b5cf6,#ff4fa3);border:0;border-radius:22px;box-shadow:0 6px 0 #5b34c9,0 10px 18px rgba(91,52,201,.25)}
+header h1{color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.2);letter-spacing:.5px}
+.ub,.hkb{background:linear-gradient(180deg,#fff,#ffe9a8);color:#5b34c9;border:0;box-shadow:0 4px 0 #e0a100,0 6px 8px rgba(0,0,0,.15);transition:transform .08s,box-shadow .08s}
+.ub.acik{background:linear-gradient(180deg,#7ef0c8,#22c58b);color:#fff;box-shadow:0 4px 0 #139468}
+.ub:active,.hkb:active{transform:translateY(3px);box-shadow:0 1px 0 #e0a100}
+.hkb{border-radius:16px;font-size:1.5rem}
+.kart,.ayar{background:linear-gradient(180deg,#eaf6ff,#cfeaff);border:3px solid #5bb5f5;border-radius:22px;box-shadow:0 6px 0 #3a96dc,0 10px 16px rgba(58,150,220,.18)}
+.secim-k{background:linear-gradient(180deg,#fff6d1,#ffe38a);border-color:#ffb703;box-shadow:0 6px 0 #e09a00,0 10px 16px rgba(224,154,0,.2)}
+.okd{background:linear-gradient(180deg,#e6fbef,#bff0d6);border-color:#34c486;box-shadow:0 6px 0 #1fa06a,0 10px 16px rgba(31,160,106,.18)}
+.kbas{color:#e0306f;font-weight:700}
+.secimler>*{background:linear-gradient(180deg,#fff,#f3e9ff);border:3px solid #c9a8ff;border-radius:18px;box-shadow:0 5px 0 #a47ae8,0 8px 10px rgba(0,0,0,.12);transition:transform .08s,box-shadow .08s}
+.secimler>*:active{transform:translateY(3px);box-shadow:0 2px 0 #a47ae8}
+.secimler>[aria-pressed="true"]{background:linear-gradient(180deg,#ffe0ee,#ff9ccb);border-color:#ff4fa3;box-shadow:0 5px 0 #d4267b}
+.sekme{background:#fff;border:3px solid var(--mr);box-shadow:0 6px 0 var(--mr),0 10px 12px rgba(0,0,0,.12);transition:transform .08s,box-shadow .08s}
+.sekme:active{transform:translateY(4px);box-shadow:0 2px 0 var(--mr)}
+.sekme.su{background:linear-gradient(180deg,var(--mr),var(--mr));background-image:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0) 55%);background-color:var(--mr)}
+.sekme svg{filter:drop-shadow(0 3px 2px rgba(0,0,0,.25))}
+.cevir{box-shadow:0 8px 0 #b73a28,0 14px 18px rgba(183,58,40,.3)}
+.cevir:active{transform:translateY(5px);box-shadow:0 3px 0 #b73a28}
+.gorsel,.mascot,.maskot{filter:drop-shadow(0 8px 6px rgba(0,0,0,.22))}
+.hklv{background:#fff0f7;border:3px solid #ff4fa3;box-shadow:0 5px 0 #d4267b}
+.hklv button{font-weight:700;color:#b8195f}
+.hklv button[aria-pressed="true"]{background:linear-gradient(180deg,#ff8cc4,#ff4fa3);color:#fff;box-shadow:0 3px 0 #d4267b}
+.hkalan canvas{box-shadow:0 8px 0 #1fb7aa,0 14px 22px rgba(31,183,170,.3)}
+.oyunsec{background:#fff;border-top:0;padding-inline:12px;box-shadow:0 -6px 18px rgba(139,92,246,.22);gap:6px}
+.oyunsec button{border:0;color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.22);transition:transform .1s,box-shadow .1s;font-weight:700;text-shadow:0 1px 0 rgba(0,0,0,.2)}
+.oyunsec button:nth-child(1){background:linear-gradient(180deg,#ffb04a,#ff8a1f);--c:#c9650a}
+.oyunsec button:nth-child(2){background:linear-gradient(180deg,#5fc4ff,#2f9bf0);--c:#1a6fb8}
+.oyunsec button:nth-child(3){background:linear-gradient(180deg,#6fe3a5,#27c277);--c:#169055}
+.oyunsec button:nth-child(4){background:linear-gradient(180deg,#ff8cc4,#ff4fa3);--c:#c71f78}
+.oyunsec button{box-shadow:0 5px 0 var(--c)}
+.oyunsec button .e{font-size:1.9rem;filter:drop-shadow(0 3px 2px rgba(0,0,0,.3))}
+.oyunsec button[aria-pressed="false"]{opacity:.78;transform:scale(.94)}
+.oyunsec button[aria-pressed="true"]{background-color:inherit;color:#fff;box-shadow:0 5px 0 var(--c),0 0 0 3px #fff;transform:translateY(-5px) scale(1.03)}
+.oyunsec button[aria-pressed="true"] .e{animation:hpop 1.6s ease-in-out infinite}
+@keyframes hpop{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-4px) rotate(-6deg)}}
+@media (prefers-reduced-motion:reduce){.oyunsec button .e{animation:none!important}}
+/* ---- Son cila: seçiciler, geçişler, ödül rozeti, dokunma hissi ---- */
+*{-webkit-tap-highlight-color:transparent}
+html{overscroll-behavior:none}
+button{user-select:none;-webkit-user-select:none;touch-action:manipulation}
+button:focus-visible{outline:4px solid #ffd23f;outline-offset:2px}
+.seg:not(.oyunsec):not(.hklv){background:#fff;border:3px solid #cfe3ff;border-radius:18px;padding:4px;gap:5px;box-shadow:0 4px 0 #b5d2f3}
+.seg:not(.oyunsec):not(.hklv) button{min-height:2.6rem;border-radius:14px;font-weight:700;background:#f1f8ff;box-shadow:0 3px 0 #c7dcf5;transition:transform .08s,box-shadow .08s}
+.seg:not(.oyunsec):not(.hklv) button:active{transform:translateY(2px);box-shadow:0 1px 0 #c7dcf5}
+.seg:not(.oyunsec):not(.hklv) button[aria-pressed="true"]{background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,0) 60%),var(--mr,#8b5cf6);color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.25);box-shadow:0 3px 0 rgba(0,0,0,.28)}
+.stars{background:linear-gradient(180deg,#fff7c2,#ffe066);color:#a85d00;border-radius:999px;padding:.15rem .7rem;font-weight:700;box-shadow:0 3px 0 #e0a100}
+header h1::after{content:" \2728";display:inline-block;animation:htw 2.4s ease-in-out infinite}
+@keyframes htw{0%,100%{opacity:1;transform:scale(1) rotate(0)}50%{opacity:.55;transform:scale(1.25) rotate(14deg)}}
+.alan,.pcalan,.hkalan{animation:hin .35s ease-out}
+@keyframes hin{from{opacity:0}to{opacity:1}}
+.ub:hover,.hkb:hover{filter:brightness(1.05)}
+@media (prefers-reduced-motion:reduce){header h1::after,.alan,.pcalan,.hkalan{animation:none!important}}
 </style>
 
 <div id="fx" aria-hidden="true"></div>
@@ -683,7 +755,7 @@ html.tahta .alan{grid-template-columns:minmax(11rem,.8fr) minmax(0,1.9fr) minmax
       <button type="button" class="hkb" id="hkSes" aria-label="Ses">🔊</button>
     </div>
     <div class="seg hklv" id="hkLvSeg" role="group" aria-label="Masa hokeyi düzeyi">
-      <button type="button" data-v="1">Kolay · 2 kale</button><button type="button" data-v="2">Orta · 3 kale</button><button type="button" data-v="3">Usta · hareketli kaleci</button>
+      <button type="button" data-v="1" title="2 kale">Kolay</button><button type="button" data-v="2" title="3 kale">Orta</button><button type="button" data-v="3" title="Hareketli kaleci">Usta</button>
     </div>
     <p class="hkmsg" id="hkMsg" aria-live="polite"></p>
     <div class="hkpanel" id="hkPanel" hidden>
@@ -2378,9 +2450,10 @@ function renderChrome(){
   document.querySelectorAll('#lsaySeg button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.v===S.lsay))});
 }
 function renderOyun(){
+  document.documentElement.setAttribute('data-game',S.game);
   var pen=S.game==='pence',kl=S.game==='kule',hk=S.game==='hokey',diger=pen||kl||hk;
-  $('#oyunSec').innerHTML=[['bardak','🥤 Hece Bardağı'],['pence','🕹️ Pençe Makinesi'],['kule','🧱 Ahşap Kule'],['hokey','🏒 Neon Masa Hokeyi']].map(function(x){
-    return '<button type="button" data-v="'+x[0]+'" aria-pressed="'+(S.game===x[0])+'">'+x[1]+'</button>';
+  $('#oyunSec').innerHTML=[['bardak','🥤','Bardak'],['pence','🕹️','Pençe'],['kule','🧱','Kule'],['hokey','🏒','Hokey']].map(function(x){
+    return '<button type="button" data-v="'+x[0]+'" aria-pressed="'+(S.game===x[0])+'"><span class="e">'+x[1]+'</span><span>'+x[2]+'</span></button>';
   }).join('');
   $('#sekmeler').hidden=diger;$('#alan').hidden=diger;$('#pence').hidden=!pen;$('#kule').hidden=!kl;$('#hokey').hidden=!hk;
   document.querySelector('.okd').hidden=diger;
