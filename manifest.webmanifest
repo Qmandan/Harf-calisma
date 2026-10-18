@@ -1,0 +1,11 @@
+{
+  "name": "Hece Bardağı • Eğlenerek Öğren",
+  "short_name": "Harfler",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff8a1f",
+  "lang": "tr",
+  "icons": [{"src": "ikon.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}]
+}

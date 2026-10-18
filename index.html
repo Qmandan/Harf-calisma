@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><script>(function(){if(!window.AndroidTTS)return;
+<!doctype html><html><head><meta charset=utf8><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Harfler"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#ff8a1f"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="ikon.png"><script>(function(){if(!window.AndroidTTS)return;
 function U(t){this.text=t;this.lang='tr-TR';this.voice=null;this.rate=1;this.pitch=1;this.volume=1}
 var V=[],L=[];
 function refresh(){try{var a=JSON.parse(AndroidTTS.getVoices()||'[]');V=a.map(function(o,i){return {lang:'tr-TR',name:o.name,voiceURI:o.name,localService:true,default:i===0}})}catch(e){}}
@@ -2699,4 +2699,4 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){if(
 })();
 </script>
 
-</body></html>
+<script>if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script></body></html>
